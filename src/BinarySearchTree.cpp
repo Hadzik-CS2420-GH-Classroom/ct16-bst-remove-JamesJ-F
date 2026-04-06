@@ -142,10 +142,10 @@ bool BinarySearchTree::is_empty() const {
 //   - find_min_ is used by remove_ to locate the in-order successor
 //
 Node* BinarySearchTree::find_min_(Node* node) const {
-    // TODO: Implement find_min_
     //   - Walk left until there is no left child
+    while (node->left) node = node->left;
     //   - Return that node (it holds the minimum value)
-    return nullptr;
+    return node;
 }
 
 // =============================================================================
@@ -184,19 +184,27 @@ Node* BinarySearchTree::remove_(Node* node, int value, bool& removed) {
     // TODO: Implement remove_ (recursive, three cases)
     //
     //   Step 0: Base case — if node is null, return nullptr
-    //
+    if (!node) return nullptr;
     //   Step 1: if value < node->data, recurse left
+    if (value < node->data) remove_(node->left, value, removed);
     //   Step 2: if value > node->data, recurse right
+    if (value < node->data) remove_(node->right, value, removed);
     //
     //   Step 3: value == node->data — FOUND IT, handle removal
     //     - set removed = true
+    removed = true;
     //     - Case 1 (leaf): delete node, return nullptr
+    if (!node->left && !node->right) return nullptr;
     //     - Case 2 (one child): delete node, return the child
+    if (!node->left) { delete node;  return node->right; }
+    if (!node->right) { delete node; return node->left; }
     //     - Case 3 (two children):
     //         a. find the in-order successor: find_min_(node->right)
     //         b. copy successor's data into node->data
     //         c. recursively remove the successor from the right subtree
-    //
+    Node* successor = find_min_(node->right);
+    node->data = successor->data;
+    node->right = remove_(node->right, successor->data, removed);
     //   Return node at the end
-    return nullptr;
+    return node;
 }
